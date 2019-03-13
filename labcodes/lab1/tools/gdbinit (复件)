@@ -1,6 +1,7 @@
 file bin/kernel
 set architecture i8086
 target remote :1234
+break *0xfff0
 break *0x7c00
-file boot/bootasm.S
-
+break kern_init
+break seta20.1

@@ -46,6 +46,28 @@ idt_init(void) {
       *     You don't know the meaning of this instruction? just google it! and check the libs/x86.h to know more.
       *     Notice: the argument of lidt is idt_pd. try to find it!
       */
+ 	// 每一项中断描述符的地址存储在vector.S下,是个数组__vectors数组
+    // 每个中断服务的入口地址
+    extern uintptr_t __vectors[];
+    //将入口地址写到IDT Table得对应descriptor处,并完善每个descriptor的其余部分。根据指导书填入,那么系统调用是第几号中断呢,看起来每个中断都只是存了几个立即数到栈中
+    //通过搜索T_SYSCALL,找到trap.h文件,根据前后变量的定义猜测这可能是中断号,有些中断没有用上,所以没有中断号,系统调用中断号应该是0x80,即中断号为128,同时int指令也是调用中断号
+    int i;
+    for (i = 0; i < 256; i ++) {
+        if (i == T_SYSCALL) {
+            SETGATE(idt[i], 1, GD_KTEXT, __vectors[i], DPL_USER);
+        }
+		else if(i == T_SWITCH_TOK) {
+			SETGATE(idt[i], 0, GD_KTEXT, __vectors[i], DPL_USER);
+		}
+        else if (i < IRQ_OFFSET) {
+            SETGATE(idt[i], 1, GD_KTEXT, __vectors[i], DPL_KERNEL);
+        }
+        else {
+            SETGATE(idt[i], 0, GD_KTEXT, __vectors[i], DPL_KERNEL);
+        }
+    }
+    //填入IDT Table的入口地址到IDTR寄存器,根据注释可知地址是idt_pd，通过查看指导书可知该寄存器存了idt的base address和limit两个地址，所以idt_pd中的sizeof(idt) - 1就是limit，此外也可知道limit对地址长度检验的时候检验的是起始地址。
+	lidt(&idt_pd);
 }
 
 static const char *
@@ -147,6 +169,14 @@ trap_dispatch(struct trapframe *tf) {
          * (2) Every TICK_NUM cycle, you can print some info using a funciton, such as print_ticks().
          * (3) Too Simple? Yes, I think so!
          */
+		//当产生时钟中断,ticks+1
+		ticks = ticks + 1;
+		//ticks == 100时输出字符
+		if (ticks == 100) {
+			print_ticks();
+			ticks = 0;
+		}
+
         break;
     case IRQ_OFFSET + IRQ_COM1:
         c = cons_getc();
