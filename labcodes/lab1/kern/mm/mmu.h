@@ -63,7 +63,7 @@ struct gatedesc {
  * Set up a normal interrupt/trap gate descriptor
  *	 - gate: 猜测是中断号,并不是,其实由函数体看出是gate.xxx就是讲描述符填上数据,所以就是每个描述符的起始地址
  *   - istrap: 1 for a trap (= exception) gate, 0 for an interrupt gate
- *   - sel: Code segment selector for interrupt/trap handler
+ *   - sel: Code segment selector for interrupt/trap handler 应该是零
  *   - off: Offset in code segment for interrupt/trap handler
  *   - dpl: Descriptor Privilege Level - the privilege level required
  *          for software to invoke this interrupt/trap gate explicitly

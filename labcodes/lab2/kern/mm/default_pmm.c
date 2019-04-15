@@ -12,23 +12,29 @@
  *  Please refer to Page 196~198, Section 8.2 of Yan Wei Min's Chinese book
  * "Data Structure -- C programming language".
 */
+/*
+在Frist Fit算法中,allocator 维护空闲块链表?(空闲列表中),一旦受到申请内存的请求,会扫描空闲表找到第一个比他大的空闲块,并将剩余部分加到空闲块里,参考严为民的196~198页.
+*/
 // LAB2 EXERCISE 1: YOUR CODE
 // you should rewrite functions: `default_init`, `default_init_memmap`,
 // `default_alloc_pages`, `default_free_pages`.
+// 重写函数
 /*
  * Details of FFMA
  * (1) Preparation:
  *  In order to implement the First-Fit Memory Allocation (FFMA), we should
  * manage the free memory blocks using a list. The struct `free_area_t` is used
  * for the management of free memory blocks.
+ * free_area_t为空闲块的入口地址
  *  First, you should get familiar with the struct `list` in list.h. Struct
  * `list` is a simple doubly linked list implementation. You should know how to
  * USE `list_init`, `list_add`(`list_add_after`), `list_add_before`, `list_del`,
- * `list_next`, `list_prev`.
- *  There's a tricky method that is to transform a general `list` struct to a
+ * `list_next`, `list_prev` .
+ *  There's a tricky(复杂的) method that is to transform a general `list` struct to a
  * special struct (such as struct `page`), using the following MACROs: `le2page`
  * (in memlayout.h), (and in future labs: `le2vma` (in vmm.h), `le2proc` (in
  * proc.h), etc).
+ * 熟悉list.h中的list这个双向链表,并使用 `list_init`, `list_add`(`list_add_after`), `list_add_before`, `list_del`,`list_next`, `list_prev` 来操作list. 并初始化page类.
  * (2) `default_init`:
  *  You can reuse the demo `default_init` function to initialize the `free_list`
  * and set `nr_free` to 0. `free_list` is used to record the free memory blocks.
@@ -106,6 +112,7 @@ default_init(void) {
 
 static void
 default_init_memmap(struct Page *base, size_t n) {
+    /* 初始化一个空闲块 */
     assert(n > 0);
     struct Page *p = base;
     for (; p != base + n; p ++) {

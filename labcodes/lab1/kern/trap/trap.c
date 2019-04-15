@@ -46,11 +46,13 @@ idt_init(void) {
       *     You don't know the meaning of this instruction? just google it! and check the libs/x86.h to know more.
       *     Notice: the argument of lidt is idt_pd. try to find it!
       */
- 	// 每一项中断描述符的地址存储在vector.S下,是个数组__vectors数组
+     // 每一项中断描述符的地址存储在vector.S下,是个数组__vectors数组
+     // 不是,vector.S应该是中断服务例程(即处理中断的程序),此时会生成服务例程的地址,再将地址拆开存到IDT Table中
+     // vector.S先存两个数,然后跳转到trapentry.S的__alltraps:处继续解决中断。
     // 每个中断服务的入口地址
     extern uintptr_t __vectors[];
     //将入口地址写到IDT Table得对应descriptor处,并完善每个descriptor的其余部分。根据指导书填入,那么系统调用是第几号中断呢,看起来每个中断都只是存了几个立即数到栈中
-    //通过搜索T_SYSCALL,找到trap.h文件,根据前后变量的定义猜测这可能是中断号,有些中断没有用上,所以没有中断号,系统调用中断号应该是0x80,即中断号为128,同时int指令也是调用中断号
+    //通过搜索T_SYSCALL,找到trap.h文件,根据前后变量的定义猜测这可能是中断号,有些中断没有用上,所以没有中断号,系统调用中断号应该是0x80,即中断号为128,同时int指令也是调用中断号,所以答案有问题。
     int i;
     for (i = 0; i < 256; i ++) {
         if (i == T_SYSCALL) {
