@@ -35,11 +35,13 @@
  * (in memlayout.h), (and in future labs: `le2vma` (in vmm.h), `le2proc` (in
  * proc.h), etc).
  * 熟悉list.h中的list这个双向链表,并使用 `list_init`, `list_add`(`list_add_after`), `list_add_before`, `list_del`,`list_next`, `list_prev` 来操作list. 并初始化page类.
- * (2) `default_init`:
+ * (2) `default_init`:不用变
  *  You can reuse the demo `default_init` function to initialize the `free_list`
  * and set `nr_free` to 0. `free_list` is used to record the free memory blocks.
  * `nr_free` is the total number of the free memory blocks.
- * (3) `default_init_memmap`:
+ * free_list: 双向链表的头指针
+ * nr_free:空闲块的总数（以页为单位）
+ * (3) `default_init_memmap`: 初始化Page和空闲块链表
  *  CALL GRAPH: `kern_init` --> `pmm_init` --> `page_init` --> `init_memmap` -->
  * `pmm_manager` --> `init_memmap`.
  *  This function is used to initialize a free block (with parameter `addr_base`,
@@ -57,7 +59,7 @@
  *  After that, We can use `p->page_link` to link this page into `free_list`.
  * (e.g.: `list_add_before(&free_list, &(p->page_link));` )
  *  Finally, we should update the sum of the free memory blocks: `nr_free += n`.
- * (4) `default_alloc_pages`:
+ * (4) `default_alloc_pages`:实现frist-fit分配算法
  *  Search for the first free block (block size >= n) in the free list and reszie
  * the block found, returning the address of this block as the address required by
  * `malloc`.
@@ -86,7 +88,7 @@
  *              return `p`.
  *      (4.2)
  *          If we can not find a free block with its size >=n, then return NULL.
- * (5) `default_free_pages`:
+ * (5) `default_free_pages`:修改空闲块列表
  *  re-link the pages into the free list, and may merge small free blocks into
  * the big ones.
  *  (5.1)
@@ -106,7 +108,7 @@ free_area_t free_area;
 
 static void
 default_init(void) {
-    list_init(&free_list);
+    list_init(&free_list); //free_list用来确定链表的起始地址,没有空闲块的数据,这块应该不用写
     nr_free = 0;
 }
 
